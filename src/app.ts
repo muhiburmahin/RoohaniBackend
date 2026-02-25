@@ -23,7 +23,8 @@ app.use(cors({
         const allowedOrigins = [
             process.env.APP_URL,
             "http://localhost:3000",
-            "http://localhost:5000" // ✅ add this
+            "http://localhost:5000",
+            "https://roohani-font.vercel.app"
         ];
 
         if (!origin || allowedOrigins.includes(origin)) {
