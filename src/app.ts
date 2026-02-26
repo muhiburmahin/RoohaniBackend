@@ -9,40 +9,21 @@ import { userRoutes } from "./modules/user/user.route.js";
 
 const app = express();
 
-
-// app.use(cors({
-//     origin: process.env.APP_URL || "http://localhost:3000",
-//     credentials: true,
-//     methods: ["GET", "POST", "PUT", "DELETE"],
-//     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
-// }));
-
 // ==================== CORS CONFIGURATION ====================
-// CRITICAL: Controls which frontend domains can access this backend
 const corsOptions = {
     origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
-        const allowedOrigins: string[] = [];
+        const allowedOrigins: string[] = [
+            "http://localhost:3000",
+            "https://roonani-fontend.vercel.app",
+        ];
 
-        // Development
-        allowedOrigins.push("http://localhost:3000");
+        // Environment variables থেকে আসা URL গুলো যুক্ত করা
+        if (process.env.APP_URL) allowedOrigins.push(process.env.APP_URL);
+        if (process.env.FRONTEND_URL) allowedOrigins.push(process.env.FRONTEND_URL);
 
-        // Production - from environment variables
-        if (process.env.APP_URL && process.env.APP_URL !== "http://localhost:3000") {
-            allowedOrigins.push(process.env.APP_URL);
-        }
-        if (process.env.FRONTEND_URL && process.env.FRONTEND_URL !== "http://localhost:3000") {
-            allowedOrigins.push(process.env.FRONTEND_URL);
-        }
-
-        // Explicit production domains
-        allowedOrigins.push("https://roonani-fontend.vercel.app");
-        allowedOrigins.push("https://roonani-fontend-3p9qjout7-md-mahin-projects.vercel.app");
-
-        // Remove duplicates
+        // ডুপ্লিকেট রিমুভ করা
         const uniqueOrigins = [...new Set(allowedOrigins)];
-        console.log("[CORS] Allowed:", uniqueOrigins);
-        console.log("[CORS] Request from:", origin || "(no-origin)");
-
+        
         if (!origin || uniqueOrigins.includes(origin)) {
             callback(null, true);
         } else {
@@ -52,36 +33,28 @@ const corsOptions = {
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
-    exposedHeaders: ["Set-Cookie"]
+    allowedHeaders: ["Content-Type", "Authorization", "Cookie", "X-Requested-With", "Accept"],
+    exposedHeaders: ["Set-Cookie"] 
 };
 
 app.use(cors(corsOptions));
 
-
+// Body Parser
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-
+// Better Auth Handler
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
-
+// Health Check
 app.get("/", (request: Request, respons: Response) => {
-    respons.send("Hello world");
+    respons.send("Roohani Backend is Running...");
 });
 
-
+// API Routes
 app.use("/api/category", categoryRoute);
-
 app.use("/api/product", productRoute);
-
 app.use("/api/order", orderRoutes);
-
 app.use("/api/user", userRoutes);
 
-
 export default app;
-
-
-
-
