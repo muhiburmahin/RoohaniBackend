@@ -2,6 +2,36 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 
+// Build trusted origins list - these are the origins that can access this auth server
+// CRITICAL: If you don't add your frontend origin here, you'll get INVALID_ORIGIN errors
+const buildTrustedOrigins = (): string[] => {
+    const origins: string[] = [];
+
+    // Always allow localhost for development
+    origins.push("http://localhost:3000");
+
+    // Add production frontend URL from env
+    if (process.env.FRONTEND_URL && process.env.FRONTEND_URL !== "http://localhost:3000") {
+        origins.push(process.env.FRONTEND_URL);
+    }
+
+    // Add alternative production URL from env
+    if (process.env.APP_URL && process.env.APP_URL !== "http://localhost:3000" && process.env.APP_URL !== process.env.FRONTEND_URL) {
+        origins.push(process.env.APP_URL);
+    }
+
+    // Always add explicit Vercel domain
+    origins.push("https://roohani-font.vercel.app");
+
+    // Remove duplicates and log for debugging
+    const uniqueOrigins = [...new Set(origins)];
+    console.log("[Better Auth] Configured Trusted Origins:", uniqueOrigins);
+
+    return uniqueOrigins;
+};
+
+const trustedOrigins = buildTrustedOrigins();
+
 export const auth = betterAuth({
     database: prismaAdapter(prisma, {
         provider: "postgresql",
@@ -16,14 +46,13 @@ export const auth = betterAuth({
         autoSignIn: true,
         requireEmailVerification: false,
     },
+
     beforeSessionCreate: async ({ session, user }: { session: any, user: any }) => {
         return { session, user };
     },
 
-    trustedOrigins: [
-        "http://localhost:3000",
-        "http://localhost:5000"
-    ],
+    // CRITICAL: Requests must come from one of these origins
+    trustedOrigins: trustedOrigins,
 
     user: {
         additionalFields: {

@@ -17,26 +17,45 @@ const app = express();
 //     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
 // }));
 
-app.use(cors({
-    origin: function (origin, callback) {
+// ==================== CORS CONFIGURATION ====================
+// CRITICAL: Controls which frontend domains can access this backend
+const corsOptions = {
+    origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+        const allowedOrigins: string[] = [];
 
-        const allowedOrigins = [
-            process.env.APP_URL,
-            "http://localhost:3000",
-            "https://roohani-font.vercel.app",
-        ];
+        // Development
+        allowedOrigins.push("http://localhost:3000");
 
-        if (!origin || allowedOrigins.includes(origin)) {
+        // Production - from environment variables
+        if (process.env.APP_URL && process.env.APP_URL !== "http://localhost:3000") {
+            allowedOrigins.push(process.env.APP_URL);
+        }
+        if (process.env.FRONTEND_URL && process.env.FRONTEND_URL !== "http://localhost:3000") {
+            allowedOrigins.push(process.env.FRONTEND_URL);
+        }
+
+        // Explicit productions domain
+        allowedOrigins.push("https://roohani-font.vercel.app");
+
+        // Remove duplicates
+        const uniqueOrigins = [...new Set(allowedOrigins)];
+        console.log("[CORS] Allowed:", uniqueOrigins);
+        console.log("[CORS] Request from:", origin || "(no-origin)");
+
+        if (!origin || uniqueOrigins.includes(origin)) {
             callback(null, true);
         } else {
-            callback(new Error("The CORS policy for this site does not allow access from the specified Origin."));
+            console.error(`[CORS] BLOCKED: ${origin}`);
+            callback(new Error("CORS: Origin not allowed"));
         }
     },
     credentials: true,
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Cookie"],
     exposedHeaders: ["Set-Cookie"]
-}));
+};
+
+app.use(cors(corsOptions));
 
 
 app.use(express.json({ limit: '50mb' }));
