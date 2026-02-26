@@ -10,7 +10,7 @@ const buildTrustedOrigins = (): string[] => {
     // Always allow localhost for development
     origins.push("http://localhost:3000");
 
-    // Add production frontend URL from env
+    // Add production frontend URL from env  
     if (process.env.FRONTEND_URL && process.env.FRONTEND_URL !== "http://localhost:3000") {
         origins.push(process.env.FRONTEND_URL);
     }
@@ -20,8 +20,12 @@ const buildTrustedOrigins = (): string[] => {
         origins.push(process.env.APP_URL);
     }
 
-    // Always add explicit Vercel domain
-    origins.push("https://roohani-font.vercel.app");
+    // Always add explicit Vercel domains (both old and new)
+    origins.push("https://roonani-fontend.vercel.app");
+    origins.push("https://roonani-fontend-3p9qjout7-md-mahin-projects.vercel.app");
+    
+    // Add wildcard for Vercel deployments to handle auto-generated URLs
+    origins.push("https://*.vercel.app");
 
     // Remove duplicates and log for debugging
     const uniqueOrigins = [...new Set(origins)];

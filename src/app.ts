@@ -34,8 +34,9 @@ const corsOptions = {
             allowedOrigins.push(process.env.FRONTEND_URL);
         }
 
-        // Explicit productions domain
-        allowedOrigins.push("https://roohani-font.vercel.app");
+        // Explicit production domains
+        allowedOrigins.push("https://roonani-fontend.vercel.app");
+        allowedOrigins.push("https://roonani-fontend-3p9qjout7-md-mahin-projects.vercel.app");
 
         // Remove duplicates
         const uniqueOrigins = [...new Set(allowedOrigins)];
