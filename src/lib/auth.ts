@@ -45,6 +45,24 @@ export const auth = betterAuth({
 
     baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
 
+    // CRITICAL: Cookie configuration for cross-domain authentication
+    session: {
+        expiresIn: 60 * 60 * 24 * 7, // 7 days
+        updateAge: 60 * 60 * 24, // update every 24 hours
+        cookieCache: {
+            enabled: true,
+            maxAge: 5 * 60 * 1000, // 5 minutes
+        },
+    },
+
+    // CRITICAL: Cookie settings to enable cross-origin requests
+    advanced: {
+        disableCSRFCheck: false,
+        crossSubDomainCookies: {
+            enabled: true,
+        }
+    },
+
     emailAndPassword: {
         enabled: true,
         autoSignIn: true,
