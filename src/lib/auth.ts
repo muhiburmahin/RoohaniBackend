@@ -43,7 +43,7 @@ export const auth = betterAuth({
 
     // cross-domain authentication এর জন্য এই অংশটি খুব জরুরি
     advanced: {
-        disableCSRFCheck: false,
+        disableCSRFCheck: true,
         crossSubDomainCookies: {
             enabled: false,
         }
