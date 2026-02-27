@@ -12,9 +12,11 @@ const app = express();
 // ==================== CORS CONFIGURATION ====================
 const corsOptions = {
     origin: function (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) {
+        // নতুন এবং সঠিক ডোমেইনগুলো এখানে আপডেট করা হয়েছে
         const allowedOrigins: string[] = [
             "http://localhost:3000",
-            "https://roonani-fontend.vercel.app",
+            "https://roohani-frontend.vercel.app", // সঠিক বানান
+            "https://roohani-fontend.vercel.app",   // বর্তমান ডোমেইন অনুযায়ী
         ];
 
         // Environment variables থেকে আসা URL গুলো যুক্ত করা
@@ -23,7 +25,7 @@ const corsOptions = {
 
         // ডুপ্লিকেট রিমুভ করা
         const uniqueOrigins = [...new Set(allowedOrigins)];
-        
+
         if (!origin || uniqueOrigins.includes(origin)) {
             callback(null, true);
         } else {
@@ -31,10 +33,10 @@ const corsOptions = {
             callback(new Error("CORS: Origin not allowed"));
         }
     },
-    credentials: true,
+    credentials: true, // কুকি আদান-প্রদানের জন্য এটি মাস্ট
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "Cookie", "X-Requested-With", "Accept"],
-    exposedHeaders: ["Set-Cookie"] 
+    exposedHeaders: ["Set-Cookie"]
 };
 
 app.use(cors(corsOptions));
@@ -47,8 +49,8 @@ app.use(express.urlencoded({ limit: '50mb', extended: true }));
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
 // Health Check
-app.get("/", (request: Request, respons: Response) => {
-    respons.send("Roohani Backend is Running...");
+app.get("/", (request: Request, response: Response) => {
+    response.send("Roohani Backend is Running...");
 });
 
 // API Routes

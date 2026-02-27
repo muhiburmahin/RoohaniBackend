@@ -2,32 +2,20 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { prisma } from "./prisma";
 
-// Build trusted origins list - these are the origins that can access this auth server
-// CRITICAL: If you don't add your frontend origin here, you'll get INVALID_ORIGIN errors
 const buildTrustedOrigins = (): string[] => {
     const origins: string[] = [];
 
-    // Always allow localhost for development
     origins.push("http://localhost:3000");
 
-    // Add production frontend URL from env  
-    if (process.env.FRONTEND_URL && process.env.FRONTEND_URL !== "http://localhost:3000") {
-        origins.push(process.env.FRONTEND_URL);
-    }
+    if (process.env.FRONTEND_URL) origins.push(process.env.FRONTEND_URL);
+    if (process.env.APP_URL) origins.push(process.env.APP_URL);
 
-    // Add alternative production URL from env
-    if (process.env.APP_URL && process.env.APP_URL !== "http://localhost:3000" && process.env.APP_URL !== process.env.FRONTEND_URL) {
-        origins.push(process.env.APP_URL);
-    }
+    origins.push("https://roohani-frontend.vercel.app");
+    origins.push("https://roohani-fontend.vercel.app"); // আপনার বর্তমান Vercel ডোমেইন অনুযায়ী
 
-    // Always add explicit Vercel domains (both old and new)
-    origins.push("https://roonani-fontend.vercel.app");
-    origins.push("https://roonani-fontend-3p9qjout7-md-mahin-projects.vercel.app");
-    
-    // Add wildcard for Vercel deployments to handle auto-generated URLs
+    // Wildcard for Vercel preview deployments
     origins.push("https://*.vercel.app");
 
-    // Remove duplicates and log for debugging
     const uniqueOrigins = [...new Set(origins)];
     console.log("[Better Auth] Configured Trusted Origins:", uniqueOrigins);
 
@@ -45,22 +33,26 @@ export const auth = betterAuth({
 
     baseURL: process.env.BETTER_AUTH_URL || "http://localhost:5000",
 
-    // CRITICAL: Cookie configuration for cross-domain authentication
     session: {
         expiresIn: 60 * 60 * 24 * 7, // 7 days
-        updateAge: 60 * 60 * 24, // update every 24 hours
+        updateAge: 60 * 60 * 24, // 24 hours
         cookieCache: {
             enabled: true,
-            maxAge: 5 * 60 * 1000, // 5 minutes
+            maxAge: 5 * 60 * 1000,
         },
     },
 
-    // CRITICAL: Cookie settings to enable cross-origin requests
+    // cross-domain authentication এর জন্য এই অংশটি খুব জরুরি
     advanced: {
         disableCSRFCheck: false,
         crossSubDomainCookies: {
             enabled: true,
         }
+    },
+
+    cookie: {
+        secure: true,
+        sameSite: "none",
     },
 
     emailAndPassword: {
@@ -69,11 +61,6 @@ export const auth = betterAuth({
         requireEmailVerification: false,
     },
 
-    beforeSessionCreate: async ({ session, user }: { session: any, user: any }) => {
-        return { session, user };
-    },
-
-    // CRITICAL: Requests must come from one of these origins
     trustedOrigins: trustedOrigins,
 
     user: {
