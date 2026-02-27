@@ -10,7 +10,8 @@ const buildTrustedOrigins = (): string[] => {
     if (process.env.FRONTEND_URL) origins.push(process.env.FRONTEND_URL);
     if (process.env.APP_URL) origins.push(process.env.APP_URL);
 
-    origins.push("https://roohani-frontend.vercel.app");// আপনার বর্তমান Vercel ডোমেইন অনুযায়ী
+    // আপনার সঠিক ডোমেইনগুলো (বানান চেক করে নেবেন)
+    origins.push("https://roohani-fontend.vercel.app");
 
     // Wildcard for Vercel preview deployments
     origins.push("https://*.vercel.app");
@@ -41,17 +42,17 @@ export const auth = betterAuth({
         },
     },
 
-    // cross-domain authentication এর জন্য এই অংশটি খুব জরুরি
     advanced: {
-        disableCSRFCheck: true,
+        disableCSRFCheck: true, // ক্রস-ডোমেইন অথেন্টিকেশনের জন্য জরুরি
+        // কুকি সেটিংস এখানে সরাসরি দেওয়া হলো যাতে ব্রাউজার রিজেক্ট না করে
+        cookieOptions: {
+            sameSite: "none",
+            secure: true,
+            httpOnly: true,
+        },
         crossSubDomainCookies: {
             enabled: false,
         }
-    },
-
-    cookie: {
-        secure: true,
-        sameSite: "none",
     },
 
     emailAndPassword: {
