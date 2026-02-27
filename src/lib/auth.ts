@@ -10,8 +10,7 @@ const buildTrustedOrigins = (): string[] => {
     if (process.env.FRONTEND_URL) origins.push(process.env.FRONTEND_URL);
     if (process.env.APP_URL) origins.push(process.env.APP_URL);
 
-    origins.push("https://roohani-frontend.vercel.app");
-    origins.push("https://roohani-fontend.vercel.app"); // আপনার বর্তমান Vercel ডোমেইন অনুযায়ী
+    origins.push("https://roohani-frontend.vercel.app");// আপনার বর্তমান Vercel ডোমেইন অনুযায়ী
 
     // Wildcard for Vercel preview deployments
     origins.push("https://*.vercel.app");
@@ -46,7 +45,7 @@ export const auth = betterAuth({
     advanced: {
         disableCSRFCheck: false,
         crossSubDomainCookies: {
-            enabled: true,
+            enabled: false,
         }
     },
 
