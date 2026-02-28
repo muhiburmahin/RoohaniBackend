@@ -45,15 +45,6 @@ app.use(cors(corsOptions));
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ limit: '50mb', extended: true }));
 
-// 🔍 [BACKEND] Cookie Logging Middleware
-app.use((request: Request, response: Response, next) => {
-    console.log(`\n📍 [BACKEND] ${request.method} ${request.path}`);
-    console.log(`🌐 [BACKEND] Origin: ${request.headers.origin}`);
-    const cookies = request.headers.cookie || "(EMPTY)";
-    console.log(`🍪 [BACKEND] Incoming Cookies:`, cookies);
-    console.log(`---`); next();
-});
-
 // Better Auth Handler
 app.all("/api/auth/*splat", toNodeHandler(auth));
 
